@@ -1,167 +1,24 @@
-# Running Flask on Kubernetes
+# OpenShift Clients
 
-## Want to learn how to build this?
+The OpenShift client `oc` simplifies working with Kubernetes and OpenShift
+clusters, offering a number of advantages over `kubectl` such as easy login,
+kube config file management, and access to developer tools. The `kubectl`
+binary is included alongside for when strict Kubernetes compliance is necessary.
 
-Check out the [post](https://testdriven.io/running-flask-on-kubernetes).
+To learn more about OpenShift, visit [docs.openshift.com](https://docs.openshift.com)
+and select the version of OpenShift you are using.
 
-## Want to use this project?
+## Installing the tools
 
-### Docker
+After extracting this archive, move the `oc` and `kubectl` binaries
+to a location on your PATH such as `/usr/local/bin`. Then run:
 
-Build the images and spin up the containers:
+    oc login [API_URL]
 
-```sh
-$ docker-compose up -d --build
-```
+to start a session against an OpenShift cluster. After login, run `oc` and
+`oc help` to learn more about how to get started with OpenShift.
 
-Run the migrations and seed the database:
+## License
 
-```sh
-$ docker-compose exec server python manage.py recreate_db
-$ docker-compose exec server python manage.py seed_db
-```
-
-Test it out at:
-
-1. [http://localhost:8080/](http://localhost:8080/)
-1. [http://localhost:5001/books/ping](http://localhost:5001/books/ping)
-1. [http://localhost:5001/books](http://localhost:5001/books)
-
-### Kubernetes
-
-#### Minikube
-
-Install and run [Minikube](https://kubernetes.io/docs/setup/minikube/):
-
-1. Install a [Hypervisor](https://kubernetes.io/docs/tasks/tools/install-minikube/#install-a-hypervisor) (like [VirtualBox](https://www.virtualbox.org/wiki/Downloads) or [HyperKit](https://github.com/moby/hyperkit)) to manage virtual machines
-1. Install and Set Up [kubectl](https://kubernetes.io/docs/tasks/tools/install-kubectl/) to deploy and manage apps on Kubernetes
-1. Install [Minikube](https://github.com/kubernetes/minikube/releases)
-
-Start the cluster:
-
-```sh
-$ minikube start --vm-driver=virtualbox
-$ minikube dashboard
-```
-
-#### Volume
-
-Create the volume:
-
-```sh
-$ kubectl apply -f ./kubernetes/persistent-volume.yml
-```
-
-Create the volume claim:
-
-```sh
-$ kubectl apply -f ./kubernetes/persistent-volume-claim.yml
-```
-
-#### Secrets
-
-Create the secret object:
-
-```sh
-$ kubectl apply -f ./kubernetes/secret.yml
-```
-
-#### Postgres
-
-Create deployment:
-
-```sh
-$ kubectl create -f ./kubernetes/postgres-deployment.yml
-```
-
-Create the service:
-
-```sh
-$ kubectl create -f ./kubernetes/postgres-service.yml
-```
-
-Create the database:
-
-```sh
-$ kubectl get pods
-$ kubectl exec postgres-<POD_IDENTIFIER> --stdin --tty -- createdb -U postgres books
-```
-
-#### Flask
-
-Build and push the image to Docker Hub:
-
-```sh
-$ docker build -t mjhea0/flask-kubernetes ./services/server
-$ docker push mjhea0/flask-kubernetes
-```
-
-> Make sure to replace `mjhea0` with your Docker Hub namespace in the above commands as well as in *kubernetes/flask-deployment.yml*
-
-Create the deployment:
-
-```sh
-$ kubectl create -f ./kubernetes/flask-deployment.yml
-```
-
-Create the service:
-
-```sh
-$ kubectl create -f ./kubernetes/flask-service.yml
-```
-
-Apply the migrations and seed the database:
-
-```sh
-$ kubectl get pods
-$ kubectl exec flask-<POD_IDENTIFIER> --stdin --tty -- python manage.py recreate_db
-$ kubectl exec flask-<POD_IDENTIFIER> --stdin --tty -- python manage.py seed_db
-```
-
-#### Ingress
-
-Enable and apply:
-
-```sh
-$ minikube addons enable ingress
-$ kubectl apply -f ./kubernetes/minikube-ingress.yml
-```
-
-Add entry to */etc/hosts* file:
-
-```
-<MINIKUBE_IP> hello.world
-```
-
-Try it out:
-
-1. [http://hello.world/books/ping](http://hello.world/books/ping)
-1. [http://hello.world/books](http://hello.world/books)
-
-
-#### Vue
-
-Build and push the image to Docker Hub:
-
-```sh
-$ docker build -t mjhea0/vue-kubernetes ./services/client \
-    -f ./services/client/Dockerfile-minikube
-
-$ docker push mjhea0/vue-kubernetes
-```
-
-> Again, replace `mjhea0` with your Docker Hub namespace in the above commands as well as in *kubernetes/vue-deployment.yml*
-
-Create the deployment:
-
-```sh
-$ kubectl create -f ./kubernetes/vue-deployment.yml
-```
-
-Create the service:
-
-```sh
-$ kubectl create -f ./kubernetes/vue-service.yml
-```
-
-Try it out at [http://hello.world/](http://hello.world/).
+OpenShift is licensed under the Apache Public License 2.0. The source code for this
+program is [located on github](https://github.com/openshift/origin).
